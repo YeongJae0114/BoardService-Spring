@@ -15,6 +15,6 @@ public class Post {
 
     private String title;
     private String content;
-    private String author; // 나중에 추가
+    private String author;
     private LocalDateTime createdDate;
 }

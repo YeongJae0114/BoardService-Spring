@@ -3,20 +3,20 @@ package com.example.board.boardservice.service;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
 import java.util.List;
+import java.util.Optional;
 
 public interface PostService {
     // 생성
-    void create(PostDto postDto);
+    Post createPost(PostDto postDto);
+
+    // 조회
+    Optional<Post> getPost(Long id);
+    List<Post> getAllPosts();
 
     // 수정
-    void update(Long postId, PostDto postDto);
+    Optional<Post> updatePost(Long id, PostDto postDto);
 
     // 삭제
-    void delete(Long postId);
+    Optional<Void> deletePost(Long id, String password);
 
-    // 게시글 조회 (단일)
-    PostDto getPost(Long postId);
-
-    // 게시글 목록 조회
-    List<Post> getAllPosts();
 }

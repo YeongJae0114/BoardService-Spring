@@ -5,6 +5,7 @@ import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.repository.PostRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,33 +15,33 @@ public class PostServiceImp implements PostService {
     private final PostRepository postRepository;
 
     @Override
-    public void create(PostDto postDto) {
+    public Post createPost(PostDto postDto) {
         Post post = new Post();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
-        post.setAuthor(null);
+        post.setAuthor(postDto.getAuthor());
         post.setCreatedDate(LocalDateTime.now());
 
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     @Override
-    public void update(Long postId, PostDto postDto) {
-
-    }
-
-    @Override
-    public void delete(Long postId) {
-
-    }
-
-    @Override
-    public PostDto getPost(Long postId) {
-        return null;
+    public Optional<Post> getPost(Long id) {
+        return Optional.empty();
     }
 
     @Override
     public List<Post> getAllPosts() {
         return postRepository.findAll();
+    }
+
+    @Override
+    public Optional<Post> updatePost(Long id, PostDto postDto) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Void> deletePost(Long id, String password) {
+        return Optional.empty();
     }
 }
