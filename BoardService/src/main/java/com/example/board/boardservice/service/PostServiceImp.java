@@ -2,7 +2,9 @@ package com.example.board.boardservice.service;
 
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
+import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.PostRepository;
+import com.example.board.boardservice.response.model.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +28,9 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public Optional<Post> getPost(Long id) {
-        return Optional.empty();
+    public Post getPost(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
     }
 
     @Override
@@ -36,12 +39,20 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public Optional<Post> updatePost(Long id, PostDto postDto) {
-        return Optional.empty();
+    public Post updatePost(Long id, PostDto postDto) {
+        Post findPost = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
+
+        findPost.setTitle(postDto.getTitle());
+        findPost.setAuthor(postDto.getAuthor());
+        findPost.setContent(postDto.getContent());
+
+        // 수정일은 나중에 추가할게용
+        return postRepository.save(findPost);
     }
 
     @Override
-    public Optional<Void> deletePost(Long id, String password) {
-        return Optional.empty();
+    public void deletePost(Long id) {
+        postRepository.deleteById(id);
     }
 }

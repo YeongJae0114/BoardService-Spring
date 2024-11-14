@@ -10,13 +10,13 @@ public interface PostService {
     Post createPost(PostDto postDto);
 
     // 조회
-    Optional<Post> getPost(Long id);
+    Post getPost(Long id);
     List<Post> getAllPosts();
 
     // 수정
-    Optional<Post> updatePost(Long id, PostDto postDto);
+    Post updatePost(Long id, PostDto postDto);
 
     // 삭제
-    Optional<Void> deletePost(Long id, String password);
+    void deletePost(Long id);
 
 }
