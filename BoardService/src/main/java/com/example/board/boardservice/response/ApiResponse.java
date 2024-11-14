@@ -1,6 +1,7 @@
 package com.example.board.boardservice.response;
 
 import com.example.board.boardservice.response.model.ErrorCode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,47 +10,27 @@ import lombok.Getter;
 @Getter
 public class ApiResponse<T> {
     private final Status status;
-    private final MetaData metaData;
-    private final List<T> result;
-    private final Object data;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<T> results;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Metadata metaData;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Object data;
 
-    // Private 생성자
-    private ApiResponse(Status status, MetaData metaData, List<T> result, Object data) {
-        this.status = status;
-        this.metaData = metaData;
-        this.result = result;
+    // 생성자
+    // 정상 응답
+    public ApiResponse(List<T> results) {
+        this.status = new Status(ErrorCode.OK.getCode(), ErrorCode.OK.getMessage());
+        this.results = results;
+        this.metaData = new Metadata(results.size());
+    }
+
+    // 예외 응답
+    public ApiResponse(int code, String message, Object data) {
+        this.status = new Status(code, message);
         this.data = data;
     }
 
-    // 단일 결과 응답 생성 메서드
-    public static <T> ApiResponse<T> makeResponse(T result) {
-        return new ApiResponse<>(
-                new Status(ErrorCode.OK.getCode(), ErrorCode.OK.getMessage()),
-                new MetaData(1),
-                List.of(result),
-                null
-        );
-    }
-
-    // 리스트 결과 응답 생성 메서드
-    public static <T> ApiResponse<T> makeResponse(List<T> results) {
-        return new ApiResponse<>(
-                new Status(ErrorCode.OK.getCode(), ErrorCode.OK.getMessage()),
-                new MetaData(results.size()),
-                results,
-                null
-        );
-    }
-
-    // 에러 응답 생성 메서드
-    public static <T> ApiResponse<T> error(ErrorCode errorCode, String message, Object errorData) {
-        return new ApiResponse<>(
-                new Status(errorCode.getCode(), message != null ? message : errorCode.getMessage()),
-                new MetaData(0),
-                Collections.emptyList(),
-                errorData
-        );
-    }
 
     @Getter
     @AllArgsConstructor
@@ -60,7 +41,7 @@ public class ApiResponse<T> {
 
     @Getter
     @AllArgsConstructor
-    private static class MetaData {
+    private static class Metadata {
         private final int resultCount;
     }
 }
