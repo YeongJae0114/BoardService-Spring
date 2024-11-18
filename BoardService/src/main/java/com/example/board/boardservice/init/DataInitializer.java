@@ -12,7 +12,7 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initData(PostRepository postRepository){
         return args -> {
-            for (int i = 1; i <= 10000; i++) {
+            for (int i = 1; i <= 100; i++) {
                 Post post = new Post();
                 post.setId((long) i);
                 post.setTitle("Post " + i);
