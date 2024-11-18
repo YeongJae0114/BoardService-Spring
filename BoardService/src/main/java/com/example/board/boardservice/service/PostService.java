@@ -11,8 +11,10 @@ public interface PostService {
     // 조회
     Post getPost(Long id);
     List<Post> getAllPosts();
-    List<Post> getPostsByOffset(int page, int size);
-
+    // offset 기반 페이징
+    List<Post> findPostsByOffset(int page);
+    // cursor 기반 페이징
+    List<Post> findPostsByCursor(int cursorId);
 
     // 수정
     Post updatePost(Long id, PostDto postDto);

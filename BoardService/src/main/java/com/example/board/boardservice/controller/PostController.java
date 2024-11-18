@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.web.PagedModel.PageMetadata;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,14 +46,14 @@ public class PostController {
         return makeResponse(post);
     }
 
-    // 게시글 단건 조회
+    // 게시글 모두 조회
     @GetMapping("/api/posts")
     public ApiResponse<List<Post>> getAllPosts() {
         List<Post> allPosts = postService.getAllPosts();
         return makeResponse(Collections.singletonList(allPosts));
     }
 
-    // 게시글 모두 조회
+    // 게시글 단건 조회
     @GetMapping("/api/posts/{id}")
     public ApiResponse<Post> getAllPosts(@PathVariable Long id) {
         Post post = postService.getPost(id);
@@ -63,13 +62,12 @@ public class PostController {
 
     // 페이지네이션 적용 게시글 반환
     @GetMapping("/api/posts/paginated")
-    public ApiResponse<List<Post>> getPaginatedPosts(@RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "100") int size) {
+    public ApiResponse<List<Post>> getPaginatedPosts(@RequestParam(defaultValue = "0") int page){
         Instant start = Instant.now();
-        List<Post> postsByOffset = postService.getPostsByOffset(page, size);
+        List<Post> postsByOffset = postService.findPostsByOffset(page);
         Instant end = Instant.now();
         long timeElapsed = Duration.between(start, end).toMillis();
-        log.info("Pagination executed for page: {}, size: {}, execution time: {} ms", page, size, timeElapsed);
+        log.info("Pagination executed for page: {}, size: {}, execution time: {} ms", page, 10, timeElapsed);
         return makeResponse(Collections.singletonList(postsByOffset));
     }
 

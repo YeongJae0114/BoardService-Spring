@@ -11,13 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class PostServiceImp implements PostService {
     private final PostRepository postRepository;
-
+    private final int size = 10;
+    private final LocalDateTime MAX_TIME = LocalDateTime.MAX;
     @Override
     public Post createPost(PostDto postDto) {
         Post post = new Post();
@@ -37,7 +39,7 @@ public class PostServiceImp implements PostService {
 
     @Override
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        return postRepository.findAllByOrderByCreatedDateDesc();
     }
 
     @Override
@@ -60,16 +62,20 @@ public class PostServiceImp implements PostService {
 
     // offset 기반 페이징 방식
     @Override
-    public List<Post> getPostsByOffset(int page, int size){
-        if (page < 0) {
-            throw new IllegalArgumentException("Page number cannot be negative");
-        }
-        final int MAX_PAGE_SIZE = 100;
-        if (size > MAX_PAGE_SIZE) {
-            size = MAX_PAGE_SIZE;
-        }
-        Pageable pageable = PageRequest.of(page, size); // 페이지 번호와 페이지 크기 설정
+    public List<Post> findPostsByOffset(int page){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdDate"))); // 페이지 번호와 페이지 크기 설정
         Page<Post> postPage = postRepository.findAll(pageable);
         return postPage.getContent(); // 실제 데이터 반환
+    }
+
+    //cursor 기반 페이징 방식
+    @Override
+    public List<Post> findPostsByCursor(int cursorId) {
+        Pageable pageable = PageRequest.of(cursorId, size, Sort.by(Sort.Order.desc("createdDate"))); // 페이지 번호와 페이지 크기 설정
+        if (cursorId==0){
+            return postRepository.findByCreatedDateBeforeOrderByCreatedDateDesc(MAX_TIME, pageable);
+        }else {
+            return null;
+        }
     }
 }
