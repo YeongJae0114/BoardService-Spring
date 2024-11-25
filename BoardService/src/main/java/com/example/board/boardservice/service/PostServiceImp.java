@@ -1,5 +1,6 @@
 package com.example.board.boardservice.service;
 
+import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.exception.CustomException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostServiceImp implements PostService {
     private final PostRepository postRepository;
-    private final int size = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
     private final LocalDateTime MAX_TIME = LocalDateTime.MAX;
     @Override
     public Post createPost(PostDto postDto) {
@@ -63,19 +65,36 @@ public class PostServiceImp implements PostService {
     // offset 기반 페이징 방식
     @Override
     public List<Post> findPostsByOffset(int page){
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdDate"))); // 페이지 번호와 페이지 크기 설정
+        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Order.desc("createdDate"))); // 페이지 번호와 페이지 크기 설정
         Page<Post> postPage = postRepository.findAll(pageable);
         return postPage.getContent(); // 실제 데이터 반환
     }
 
-    //cursor 기반 페이징 방식
+    // cursor 기반 페이징 방식
     @Override
-    public List<Post> findPostsByCursor(int cursorId) {
-        Pageable pageable = PageRequest.of(cursorId, size, Sort.by(Sort.Order.desc("createdDate"))); // 페이지 번호와 페이지 크기 설정
-        if (cursorId==0){
-            return postRepository.findByCreatedDateBeforeOrderByCreatedDateDesc(MAX_TIME, pageable);
-        }else {
-            return null;
+    public CursorDto<Post> findPostsByCursor(LocalDateTime createdDateCursor, Long cursorId) {
+        Pageable pageRequest = PageRequest.of(0, DEFAULT_PAGE_SIZE);
+
+        List<Post> posts;
+        if (createdDateCursor == null || cursorId == null) {
+            // 첫 요청: 최신 데이터를 반환
+            posts = postRepository.findAllByOrderByCreatedDateDesc(pageRequest);
+        } else {
+            // 커서 기반 요청: 특정 생성일 및 ID 이전 데이터 반환
+            posts = postRepository.findPostsByCursor(createdDateCursor, cursorId, pageRequest);
         }
+
+        // 다음 커서 정보 계산
+        if (!posts.isEmpty()) {
+            Post lastPost = posts.get(posts.size() - 1); // 마지막 데이터 기준으로 커서 설정
+            return new CursorDto<>(
+                    posts,
+                    lastPost.getId(),
+                    lastPost.getCreatedDate()
+            );
+        }
+
+        // 결과가 없는 경우 빈 CursorDto 반환
+        return new CursorDto<>(List.of(), null, null);
     }
 }

@@ -1,15 +1,18 @@
 package com.example.board.boardservice.controller;
 
+import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.response.ApiResponse;
 import com.example.board.boardservice.service.PostService;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +63,7 @@ public class PostController {
         return makeResponse(post);
     }
 
-    // 페이지네이션 적용 게시글 반환
+    // 페이지네이션 적용 게시글 반환 offset 기반
     @GetMapping("/api/posts/paginated")
     public ApiResponse<List<Post>> getPaginatedPosts(@RequestParam(defaultValue = "0") int page){
         Instant start = Instant.now();
@@ -69,6 +72,13 @@ public class PostController {
         long timeElapsed = Duration.between(start, end).toMillis();
         log.info("Pagination executed for page: {}, size: {}, execution time: {} ms", page, 10, timeElapsed);
         return makeResponse(Collections.singletonList(postsByOffset));
+    }
+
+    @GetMapping("/api/posts/cursor")
+    public ApiResponse<CursorDto<Post>> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
+                                                    @RequestParam(required = false) Long cursorId){
+        CursorDto<Post> postsByCursor = postService.findPostsByCursor(createdDateCursor, cursorId);
+        return makeResponse(postsByCursor);
     }
 
 
@@ -80,7 +90,7 @@ public class PostController {
     }
 
     // 게시글 삭제
-    @DeleteMapping("/api/posts/{id}")
+    @DeleteMapping("/api/delete/posts/{id}")
     public ApiResponse<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return makeResponse();
