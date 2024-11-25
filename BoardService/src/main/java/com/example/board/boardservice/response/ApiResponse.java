@@ -2,7 +2,6 @@ package com.example.board.boardservice.response;
 
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +24,7 @@ public class ApiResponse<T> {
         this.metaData = new Metadata(results.size());
     }
 
+
     // 예외 응답
     public ApiResponse(int code, String message, Object data) {
         this.status = new Status(code, message);
@@ -43,5 +43,6 @@ public class ApiResponse<T> {
     @AllArgsConstructor
     private static class Metadata {
         private final int resultCount;
+
     }
 }
