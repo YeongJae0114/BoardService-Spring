@@ -90,7 +90,7 @@ public class PostController {
     }
 
     // 게시글 삭제
-    @DeleteMapping("/api/delete/posts/{id}")
+    @DeleteMapping("/api/posts/{id}")
     public ApiResponse<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return makeResponse();
