@@ -1,4 +1,4 @@
-package com.example.board.boardservice.log.config;
+package com.example.board.boardservice.config;
 
 import com.example.board.boardservice.log.QueryCountInspector;
 import lombok.RequiredArgsConstructor;
