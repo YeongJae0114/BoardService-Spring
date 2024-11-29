@@ -21,9 +21,13 @@ public class ApiResponse<T> {
     public ApiResponse(List<T> results) {
         this.status = new Status(ErrorCode.OK.getCode(), ErrorCode.OK.getMessage());
         this.results = results;
-        this.metaData = new Metadata(results.size());
-    }
 
+        // 결과가 2차원 리스트인지 확인하고 적절한 요소 개수 계산
+        int totalCount = results.stream()
+                .mapToInt(result -> result instanceof List ? ((List<?>) result).size() : 1)
+                .sum();
+        this.metaData = new Metadata(totalCount);
+    }
 
     // 예외 응답
     public ApiResponse(int code, String message, Object data) {
@@ -40,9 +44,11 @@ public class ApiResponse<T> {
     }
 
     @Getter
-    @AllArgsConstructor
     private static class Metadata {
         private final int resultCount;
 
+        public Metadata(int resultCount) {
+            this.resultCount = resultCount;
+        }
     }
 }
