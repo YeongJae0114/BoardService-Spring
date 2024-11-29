@@ -1,4 +1,4 @@
-package com.example.board.boardservice.service;
+package com.example.board.boardservice.service.imp;
 
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
@@ -6,13 +6,13 @@ import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.PostRepository;
 import com.example.board.boardservice.response.model.ErrorCode;
+import com.example.board.boardservice.service.PostService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 

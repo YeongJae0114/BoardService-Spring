@@ -43,7 +43,7 @@ public class PostController {
 
 
     // 게시글 등록
-    @PostMapping(value = "/api/posts", produces = "application/json")
+    @PostMapping(value = "/api/posts")
     public ApiResponse<Post>createPost(@RequestBody PostDto postDto){
         Post post = postService.createPost(postDto);
         return makeResponse(post);
