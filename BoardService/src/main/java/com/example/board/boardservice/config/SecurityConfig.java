@@ -37,9 +37,8 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 // 경로별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/h2-console").permitAll() // Swagger 허용
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll() // 회원가입/로그인 허용
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // 회원가입/로그인 허용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/auth/session").permitAll() // Swagger 허용
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/logout").permitAll() // 회원가입/로그인 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // 게시글 조회 허용
                         .requestMatchers(HttpMethod.POST, "/api/posts").authenticated() // 쓰기/수정/삭제 인증 필요
                         .requestMatchers(HttpMethod.PUT, "/api/posts").authenticated()
