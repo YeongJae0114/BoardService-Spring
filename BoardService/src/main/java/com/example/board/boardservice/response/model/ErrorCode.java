@@ -21,8 +21,11 @@ public enum ErrorCode {
 
     // 회원가입 관련 오류
     ACCOUNT_USERNAME_DUPLICATE(4010, "이미 사용 중인 사용자 이름입니다.", HttpStatus.CONFLICT),
-    ACCOUNT_EMAIL_DUPLICATE(4011, "이미 사용 중인 이메일입니다.", HttpStatus.CONFLICT);
-
+    ACCOUNT_EMAIL_DUPLICATE(4011, "이미 사용 중인 이메일입니다.", HttpStatus.CONFLICT),
+    // 형식 관련 오류
+    INVALID_USERNAME_FORMAT(4020, "사용자 이름은 최소 3자 이상이어야 하며 공백일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL_FORMAT(4021, "유효한 이메일 주소를 입력해주세요.", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD_FORMAT(4022, "비밀번호는 최소 8자 이상이어야 하며 공백일 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 
     private final int code;
