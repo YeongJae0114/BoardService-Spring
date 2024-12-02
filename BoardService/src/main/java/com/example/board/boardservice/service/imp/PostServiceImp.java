@@ -3,10 +3,12 @@ package com.example.board.boardservice.service.imp;
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
+import com.example.board.boardservice.entity.User;
 import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.PostRepository;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.PostService;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +23,16 @@ import org.springframework.stereotype.Service;
 public class PostServiceImp implements PostService {
     private final PostRepository postRepository;
     private static final int DEFAULT_PAGE_SIZE = 10;
-    private final LocalDateTime MAX_TIME = LocalDateTime.MAX;
+
     @Override
-    public Post createPost(PostDto postDto) {
-        Post post = new Post();
-        post.setTitle(postDto.getTitle());
-        post.setContent(postDto.getContent());
-        post.setAuthor(postDto.getAuthor());
-        post.setCreatedDate(LocalDateTime.now());
-
-        return postRepository.save(post);
+    public Post createPost(PostDto postDto, User user) {
+        return Post.builder()
+                .title(postDto.getTitle())
+                .content(postDto.getContent())
+                .author(user)
+                .createdDate(LocalDateTime.now())
+                .build();
     }
-
     @Override
     public Post getPost(Long id) {
         return postRepository.findById(id)
@@ -45,20 +45,32 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public Post updatePost(Long id, PostDto postDto) {
+    public Post updatePost(Long id, PostDto postDto, User user) {
+
         Post findPost = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
 
-        findPost.setTitle(postDto.getTitle());
-        findPost.setAuthor(postDto.getAuthor());
-        findPost.setContent(postDto.getContent());
+        if (!findPost.getAuthor().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS, "수정 권한이 없습니다.", null);
+        }
+        findPost.toBuilder()
+                .title(postDto.getTitle())
+                .content(postDto.getContent())
+                .build();
 
         // 수정일은 나중에 추가할게용
         return postRepository.save(findPost);
     }
 
     @Override
-    public void deletePost(Long id) {
+    public void deletePost(Long id, User user) {
+        Post findPost = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
+
+        if (!findPost.getAuthor().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS, "삭제 권한이 없습니다.", null);
+        }
+
         postRepository.deleteById(id);
     }
 
