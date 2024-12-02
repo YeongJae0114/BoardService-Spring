@@ -3,8 +3,12 @@ package com.example.board.boardservice.controller;
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
+import com.example.board.boardservice.entity.User;
 import com.example.board.boardservice.response.ApiResponse;
+import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.PostService;
+import com.example.board.boardservice.session.SessionService;
+import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PostController {
     private final PostService postService;
+    private final SessionService sessionService;
 
     public <T> ApiResponse<T> makeResponse(List<T>result){
         return new ApiResponse<>(result);
@@ -41,26 +46,39 @@ public class PostController {
     }
 
 
-
     // 게시글 등록
     @PostMapping(value = "/api/posts")
-    public ApiResponse<Post>createPost(@RequestBody PostDto postDto){
-        Post post = postService.createPost(postDto);
+    public ApiResponse<Post>createPost(@RequestBody PostDto postDto, HttpSession session){
+        User user = (User) sessionService.getUserFromSession(session);
+        if (user == null){
+            return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
+        }
+        log.info("유효한 세션: {}", session.getId()); // 세션 로그 추가
+        Post post = postService.createPost(postDto, user);
         return makeResponse(post);
     }
 
-    // 게시글 모두 조회
-    @GetMapping("/api/posts")
-    public ApiResponse<List<Post>> getAllPosts() {
-        List<Post> allPosts = postService.getAllPosts();
-        return makeResponse(Collections.singletonList(allPosts));
+
+    // 게시글 수정
+    @PutMapping("/api/posts/{id}")
+    public ApiResponse<Post> updatePost(@PathVariable Long id, @RequestBody PostDto postDto, HttpSession session) {
+        User user = (User) sessionService.getUserFromSession(session);
+        if (user == null){
+            return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
+        }
+        Post post = postService.updatePost(id, postDto, user);
+        return makeResponse(post);
     }
 
-    // 게시글 단건 조회
-    @GetMapping("/api/posts/{id}")
-    public ApiResponse<Post> getAllPosts(@PathVariable Long id) {
-        Post post = postService.getPost(id);
-        return makeResponse(post);
+    // 게시글 삭제
+    @DeleteMapping("/api/posts/{id}")
+    public ApiResponse<Void> deletePost(@PathVariable Long id, HttpSession session) {
+        User user = (User) sessionService.getUserFromSession(session);
+        if (user == null){
+            return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
+        }
+        postService.deletePost(id, user);
+        return makeResponse();
     }
 
     // 페이지네이션 적용 게시글 반환 offset 기반
@@ -82,18 +100,18 @@ public class PostController {
     }
 
 
-    // 게시글 수정
-    @PutMapping("/api/posts/{id}")
-    public ApiResponse<Post> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
-        Post post = postService.updatePost(id, postDto);
-        return makeResponse(post);
+    // 게시글 모두 조회
+    @GetMapping("/api/posts")
+    public ApiResponse<List<Post>> getAllPosts() {
+        List<Post> allPosts = postService.getAllPosts();
+        return makeResponse(Collections.singletonList(allPosts));
     }
 
-    // 게시글 삭제
-    @DeleteMapping("/api/posts/{id}")
-    public ApiResponse<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return makeResponse();
+    // 게시글 단건 조회
+    @GetMapping("/api/posts/{id}")
+    public ApiResponse<Post> getAllPosts(@PathVariable Long id) {
+        Post post = postService.getPost(id);
+        return makeResponse(post);
     }
 
     }

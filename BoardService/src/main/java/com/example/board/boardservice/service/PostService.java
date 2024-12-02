@@ -3,12 +3,14 @@ package com.example.board.boardservice.service;
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
+import com.example.board.boardservice.entity.User;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostService {
     // 생성
-    Post createPost(PostDto postDto);
+    Post createPost(PostDto postDto, User user);
 
     // 조회
     Post getPost(Long id);
@@ -19,8 +21,8 @@ public interface PostService {
     CursorDto<Post> findPostsByCursor(LocalDateTime localDateTime, Long cursor);
 
     // 수정
-    Post updatePost(Long id, PostDto postDto);
+    Post updatePost(Long id, PostDto postDto, User user);
 
     // 삭제
-    void deletePost(Long id);
+    void deletePost(Long id, User user);
 }
