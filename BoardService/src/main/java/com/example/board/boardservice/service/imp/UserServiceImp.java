@@ -2,6 +2,7 @@ package com.example.board.boardservice.service.imp;
 
 import com.example.board.boardservice.dto.LoginRequest;
 import com.example.board.boardservice.dto.SignUpRequest;
+import com.example.board.boardservice.entity.Role;
 import com.example.board.boardservice.entity.User;
 import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.UserRepository;
@@ -44,6 +45,7 @@ public class UserServiceImp implements UserService {
                 .username(signUpRequest.getUsername())
                 .email(signUpRequest.getEmail())
                 .password(encodePassword)
+                .role(Role.USER)
                 .build();
 
         return userRepository.save(signupUser);

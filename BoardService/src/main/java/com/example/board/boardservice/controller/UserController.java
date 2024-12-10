@@ -39,8 +39,9 @@ public class UserController {
 
     @PostMapping("/api/auth/login")
     public ApiResponse<Object> login(@Valid @RequestBody LoginRequest loginRequest, HttpSession httpSession){
-        userService.login(loginRequest, httpSession);
-        return new ApiResponse<>(ErrorCode.OK.getCode(), "로그인 성공", null);
+        User login = userService.login(loginRequest, httpSession);
+
+        return new ApiResponse<>(ErrorCode.OK.getCode(), "로그인 성공", login.getUsername());
     }
 
     @PostMapping("/api/auth/logout")
