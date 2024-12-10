@@ -82,31 +82,50 @@ public class PostServiceImp implements PostService {
         return postPage.getContent(); // 실제 데이터 반환
     }
 
-    // cursor 기반 페이징 방식
+// cursor 기반 페이징 방식
     @Override
     public CursorDto<Post> findPostsByCursor(LocalDateTime createdDateCursor, Long cursorId) {
+        // 커서 기반 페이징 처리
         Pageable pageRequest = PageRequest.of(0, DEFAULT_PAGE_SIZE);
 
-        List<Post> posts;
-        if (createdDateCursor == null || cursorId == null) {
-            // 첫 요청: 최신 데이터를 반환
-            posts = postRepository.findAllByOrderByCreatedDateDesc(pageRequest);
-        } else {
-            // 커서 기반 요청: 특정 생성일 및 ID 이전 데이터 반환
-            posts = postRepository.findPostsByCursor(createdDateCursor, cursorId, pageRequest);
-        }
+        List<Post> posts = postRepository.findPostsByCursor(createdDateCursor, cursorId, pageRequest);
 
         // 다음 커서 정보 계산
         if (!posts.isEmpty()) {
             Post lastPost = posts.get(posts.size() - 1); // 마지막 데이터 기준으로 커서 설정
+            boolean hasNext = posts.size() == DEFAULT_PAGE_SIZE; // 페이지 크기와 동일하면 다음 페이지가 있음
+
             return new CursorDto<>(
                     posts,
                     lastPost.getId(),
-                    lastPost.getCreatedDate()
+                    lastPost.getCreatedDate(),
+                    hasNext
+            );
+        }
+        // 결과가 없는 경우 빈 CursorDto 반환
+        return new CursorDto<>(List.of(), null, null, false);
+    }
+
+    @Override
+    public CursorDto<Post> firstPostsByCursor() {
+        // 첫 번째 페이지의 데이터를 가져오는 로직
+        List<Post> postList = postRepository.findTop10ByOrderByCreatedDateDesc();
+
+        // 첫 번째와 마지막 데이터가 존재할 경우 커서와 생성일 정보를 설정
+        if (!postList.isEmpty()) {
+            Post firstPost = postList.get(0);  // 첫 번째 데이터
+            Post lastPost = postList.get(postList.size() - 1); // 마지막 데이터
+
+            return new CursorDto<>(
+                    postList,
+                    lastPost.getId(),
+                    lastPost.getCreatedDate(),
+                    true  // 첫 페이지이므로 기본적으로 다음 페이지가 있음
             );
         }
 
-        // 결과가 없는 경우 빈 CursorDto 반환
-        return new CursorDto<>(List.of(), null, null);
+        // 결과가 없으면 빈 CursorDto 반환
+        return new CursorDto<>(List.of(), null, null, false);
     }
+
 }

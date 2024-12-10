@@ -20,17 +20,16 @@ public class SecurityConfig {
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(List.of("http://localhost:3000")); // React 개발 서버
+                    configuration.setAllowedOrigins(List.of( "https://zerojae175-dev.store")); // React 개발 서버
                     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 필요한 메서드만 허용
                     configuration.setAllowCredentials(true); // 세션 기반 인증
                     configuration.setMaxAge(7200L); // Preflight 요청 캐싱
-                    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept")); // 명시적으로 허용할 헤더
-                    configuration.setExposedHeaders(List.of("Access", "Authorization")); // 노출할 헤더 추가
+                    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept","ngrok-skip-browser-warning")); // 명시적으로 허용할 헤더
+                    configuration.setExposedHeaders(List.of("Access", "Authorization", "ngrok-skip-browser-warning")); // 노출할 헤더 추가
                     return configuration;
                 }))
                 // CSRF 비활성화
                 .csrf(csrf -> csrf.disable())
-
                 // 폼 로그인 비활성화
                 .formLogin(form -> form.disable())
                 // HTTP Basic 인증 비활성화
@@ -40,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/auth/session").permitAll() // Swagger 허용
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/logout").permitAll() // 회원가입/로그인 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // 게시글 조회 허용
+                        .requestMatchers(HttpMethod.POST, "/api/posts").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/posts").authenticated() // 쓰기/수정/삭제 인증 필요
                         .requestMatchers(HttpMethod.PUT, "/api/posts").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/posts").authenticated()

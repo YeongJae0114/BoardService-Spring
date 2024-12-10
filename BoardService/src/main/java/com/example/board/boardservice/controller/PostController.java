@@ -8,6 +8,7 @@ import com.example.board.boardservice.response.ApiResponse;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.PostService;
 import com.example.board.boardservice.session.SessionService;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,6 +38,7 @@ public class PostController {
         return new ApiResponse<>(result);
     }
 
+
     public <T> ApiResponse<T> makeResponse(T result){
         return makeResponse(Collections.singletonList(result));
     }
@@ -44,7 +46,6 @@ public class PostController {
     public <T> ApiResponse<T> makeResponse() {
         return new ApiResponse<>(Collections.emptyList());
     }
-
 
     // 게시글 등록
     @PostMapping(value = "/api/posts")
@@ -93,11 +94,21 @@ public class PostController {
     }
 
     @GetMapping("/api/posts/cursor")
-    public ApiResponse<CursorDto<Post>> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
+    public CursorDto<Post> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
                                                     @RequestParam(required = false) Long cursorId){
-        CursorDto<Post> postsByCursor = postService.findPostsByCursor(createdDateCursor, cursorId);
-        return makeResponse(postsByCursor);
+        if (createdDateCursor == null && cursorId == null) {
+            // 첫 번째 페이지 요청
+            return postService.firstPostsByCursor();
+        }
+
+        if ((createdDateCursor == null && cursorId != null) || (createdDateCursor != null && cursorId == null)) {
+            throw new IllegalArgumentException("createdDateCursor와 cursorId는 함께 제공되어야 합니다.");
+        }
+
+        // 다음 페이지 요청
+        return postService.findPostsByCursor(createdDateCursor, cursorId);
     }
+
 
 
     // 게시글 모두 조회

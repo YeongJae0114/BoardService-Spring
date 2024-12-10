@@ -4,7 +4,6 @@ import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.entity.User;
-import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +18,8 @@ public interface PostService {
     List<Post> findPostsByOffset(int page);
     // cursor 기반 페이징
     CursorDto<Post> findPostsByCursor(LocalDateTime localDateTime, Long cursor);
+    CursorDto<Post> firstPostsByCursor();
+
 
     // 수정
     Post updatePost(Long id, PostDto postDto, User user);

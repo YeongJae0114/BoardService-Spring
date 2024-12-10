@@ -28,4 +28,8 @@ public interface PostRepository extends JpaRepository<Post, Long>  {
             @Param("id") Long id,
             Pageable pageable
     );
+
+    // 첫 번째 커서 요청
+    List<Post> findTop10ByOrderByCreatedDateDesc();
+
 }
