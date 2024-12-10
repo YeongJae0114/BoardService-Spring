@@ -49,4 +49,15 @@ public class GlobalExceptionHandler <T>{
 
         return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ApiResponse<String> response = new ApiResponse<>(
+                400,
+                "Invalid Request Parameters",
+                ex.getMessage()
+        );
+        return ResponseEntity.badRequest().body(response);
+    }
+
 }
