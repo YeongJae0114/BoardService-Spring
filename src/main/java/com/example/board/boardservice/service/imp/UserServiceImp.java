@@ -3,7 +3,7 @@ package com.example.board.boardservice.service.imp;
 import com.example.board.boardservice.dto.LoginRequest;
 import com.example.board.boardservice.dto.SignUpRequest;
 import com.example.board.boardservice.entity.Role;
-import com.example.board.boardservice.entity.User;
+import com.example.board.boardservice.entity.Users;
 import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.UserRepository;
 import com.example.board.boardservice.response.model.ErrorCode;
@@ -25,7 +25,7 @@ public class UserServiceImp implements UserService {
     private final SessionService sessionService;
 
     @Override
-    public User signup(SignUpRequest signUpRequest){
+    public Users signup(SignUpRequest signUpRequest){
         if (userRepository.existsByUsername(signUpRequest.getUsername())){
             throw new CustomException(ErrorCode.ACCOUNT_USERNAME_DUPLICATE,
                     "이미 존재하는 사용자 이름입니다.", Map.of("field", "username", "value",
@@ -40,41 +40,32 @@ public class UserServiceImp implements UserService {
 
         String encodePassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        new User();
-        User signupUser = User.builder()
+        new Users();
+        Users signupUsers = Users.builder()
                 .username(signUpRequest.getUsername())
                 .email(signUpRequest.getEmail())
                 .password(encodePassword)
                 .role(Role.USER)
                 .build();
 
-        return userRepository.save(signupUser);
+        return userRepository.save(signupUsers);
     }
 
     @Override
-    public User login(LoginRequest loginRequest, HttpSession httpSession) {
-        User user = userRepository.findByEmail(loginRequest.getEmail())
+    public Users login(LoginRequest loginRequest, HttpSession httpSession) {
+        Users users = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(()->new CustomException(ErrorCode.INVALID_CREDENTIALS, "사용자 이름 또는 이메일이 잘못되었습니다.", null));
 
         // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), users.getPassword())) {
             throw new CustomException(
                     ErrorCode.INVALID_CREDENTIALS,
                     "비밀번호가 잘못되었습니다.",
                     null
             );
         }
-        sessionService.saveUserToSession(httpSession, user);
-        return user;
+        sessionService.saveUserToSession(httpSession, users);
+        return users;
     }
 
-    @Override
-    public void session() {
-
-    }
-
-    @Override
-    public void logout() {
-
-    }
 }

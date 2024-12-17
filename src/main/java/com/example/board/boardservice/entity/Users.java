@@ -1,5 +1,6 @@
 package com.example.board.boardservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +24,7 @@ import lombok.NonNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users") // 테이블 이름을 "users"로 설정
-public class User {
+public class Users {
     @Id @GeneratedValue
     private Long id;
 
@@ -41,6 +42,7 @@ public class User {
     @Column(nullable = false)
     private Role role; // 역할 필드 추가
 
+    @JsonIgnore // 순환 참조 방지를 위해 @JsonIgnore 추가
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 }
