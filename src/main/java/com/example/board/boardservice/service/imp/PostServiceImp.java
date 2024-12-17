@@ -2,13 +2,13 @@ package com.example.board.boardservice.service.imp;
 
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
+import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
-import com.example.board.boardservice.entity.User;
+import com.example.board.boardservice.entity.Users;
 import com.example.board.boardservice.exception.CustomException;
 import com.example.board.boardservice.repository.PostRepository;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.PostService;
-import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +25,16 @@ public class PostServiceImp implements PostService {
     private static final int DEFAULT_PAGE_SIZE = 10;
 
     @Override
-    public Post createPost(PostDto postDto, User user) {
-        return Post.builder()
+    public Post savePost(PostDto postDto, Users users) {
+        Post post = Post.builder()
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
-                .author(user)
+                .author(users)
                 .createdDate(LocalDateTime.now())
                 .build();
+        return postRepository.save(post);
     }
+
     @Override
     public Post getPost(Long id) {
         return postRepository.findById(id)
@@ -40,17 +42,17 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public List<Post> getAllPosts() {
+    public List<PostSummaryDto> getAllPosts() {
         return postRepository.findAllByOrderByCreatedDateDesc();
     }
 
     @Override
-    public Post updatePost(Long id, PostDto postDto, User user) {
+    public Post updatePost(Long id, PostDto postDto, Users users) {
 
         Post findPost = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
 
-        if (!findPost.getAuthor().getId().equals(user.getId())) {
+        if (!findPost.getAuthor().getId().equals(users.getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS, "수정 권한이 없습니다.", null);
         }
         findPost.toBuilder()
@@ -63,11 +65,11 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public void deletePost(Long id, User user) {
+    public void deletePost(Long id, Users users) {
         Post findPost = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SERVER_ERROR, "Post not found with id: " + id, id));
 
-        if (!findPost.getAuthor().getId().equals(user.getId())) {
+        if (!findPost.getAuthor().getId().equals(users.getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS, "삭제 권한이 없습니다.", null);
         }
 
@@ -84,15 +86,15 @@ public class PostServiceImp implements PostService {
 
 // cursor 기반 페이징 방식
     @Override
-    public CursorDto<Post> findPostsByCursor(LocalDateTime createdDateCursor, Long cursorId) {
+    public CursorDto<PostSummaryDto> findPostsByCursor(LocalDateTime createdDateCursor, Long cursorId) {
         // 커서 기반 페이징 처리
         Pageable pageRequest = PageRequest.of(0, DEFAULT_PAGE_SIZE);
 
-        List<Post> posts = postRepository.findPostsByCursor(createdDateCursor, cursorId, pageRequest);
+        List<PostSummaryDto> posts = postRepository.findPostsByCursor(createdDateCursor, cursorId, pageRequest);
 
         // 다음 커서 정보 계산
         if (!posts.isEmpty()) {
-            Post lastPost = posts.get(posts.size() - 1); // 마지막 데이터 기준으로 커서 설정
+            PostSummaryDto lastPost = posts.get(posts.size() - 1); // 마지막 데이터 기준으로 커서 설정
             boolean hasNext = posts.size() == DEFAULT_PAGE_SIZE; // 페이지 크기와 동일하면 다음 페이지가 있음
 
             return new CursorDto<>(
@@ -107,14 +109,14 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public CursorDto<Post> firstPostsByCursor() {
+    public CursorDto<PostSummaryDto> firstPostsByCursor() {
         // 첫 번째 페이지의 데이터를 가져오는 로직
-        List<Post> postList = postRepository.findTop10ByOrderByCreatedDateDesc();
+        List<PostSummaryDto> postList = postRepository.findTop10ByOrderByCreatedDateDesc();
 
         // 첫 번째와 마지막 데이터가 존재할 경우 커서와 생성일 정보를 설정
         if (!postList.isEmpty()) {
-            Post firstPost = postList.get(0);  // 첫 번째 데이터
-            Post lastPost = postList.get(postList.size() - 1); // 마지막 데이터
+            PostSummaryDto firstPost = postList.get(0);  // 첫 번째 데이터
+            PostSummaryDto lastPost = postList.get(postList.size() - 1); // 마지막 데이터
 
             return new CursorDto<>(
                     postList,

@@ -2,13 +2,13 @@ package com.example.board.boardservice.controller;
 
 import com.example.board.boardservice.dto.CursorDto;
 import com.example.board.boardservice.dto.PostDto;
+import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
-import com.example.board.boardservice.entity.User;
+import com.example.board.boardservice.entity.Users;
 import com.example.board.boardservice.response.ApiResponse;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.PostService;
 import com.example.board.boardservice.session.SessionService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,36 +48,39 @@ public class PostController {
 
     // 게시글 등록
     @PostMapping(value = "/api/posts")
-    public ApiResponse<Post>createPost(@RequestBody PostDto postDto, HttpSession session){
-        User user = (User) sessionService.getUserFromSession(session);
-        if (user == null){
+    public ApiResponse<Post> savePost(@RequestBody PostDto postDto, HttpSession session){
+        Users users = (Users) sessionService.getUserFromSession(session);
+        if (users == null){
             return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
         }
         log.info("유효한 세션: {}", session.getId()); // 세션 로그 추가
-        Post post = postService.createPost(postDto, user);
-        return makeResponse(post);
+        Post post = postService.savePost(postDto, users);
+
+
+        return new ApiResponse<>(ErrorCode.OK.getCode(), "게시글 저장 성공", null);
     }
 
 
     // 게시글 수정
     @PutMapping("/api/posts/{id}")
     public ApiResponse<Post> updatePost(@PathVariable Long id, @RequestBody PostDto postDto, HttpSession session) {
-        User user = (User) sessionService.getUserFromSession(session);
-        if (user == null){
+        Users users = (Users) sessionService.getUserFromSession(session);
+        if (users == null){
             return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
         }
-        Post post = postService.updatePost(id, postDto, user);
+        Post post = postService.updatePost(id, postDto, users);
+
         return makeResponse(post);
     }
 
     // 게시글 삭제
     @DeleteMapping("/api/posts/{id}")
     public ApiResponse<Void> deletePost(@PathVariable Long id, HttpSession session) {
-        User user = (User) sessionService.getUserFromSession(session);
-        if (user == null){
+        Users users = (Users) sessionService.getUserFromSession(session);
+        if (users == null){
             return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
         }
-        postService.deletePost(id, user);
+        postService.deletePost(id, users);
         return makeResponse();
     }
 
@@ -94,7 +96,7 @@ public class PostController {
     }
 
     @GetMapping("/api/posts/cursor")
-    public CursorDto<Post> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
+    public CursorDto<PostSummaryDto> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
                                                     @RequestParam(required = false) Long cursorId){
         if (createdDateCursor == null && cursorId == null) {
             // 첫 번째 페이지 요청
@@ -113,8 +115,8 @@ public class PostController {
 
     // 게시글 모두 조회
     @GetMapping("/api/posts")
-    public ApiResponse<List<Post>> getAllPosts() {
-        List<Post> allPosts = postService.getAllPosts();
+    public ApiResponse<List<PostSummaryDto>> getAllPosts() {
+        List<PostSummaryDto> allPosts = postService.getAllPosts();
         return makeResponse(Collections.singletonList(allPosts));
     }
 
@@ -125,4 +127,4 @@ public class PostController {
         return makeResponse(post);
     }
 
-    }
+}

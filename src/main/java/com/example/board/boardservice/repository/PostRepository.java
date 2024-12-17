@@ -1,6 +1,7 @@
 package com.example.board.boardservice.repository;
 
 
+import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>  {
-    List<Post> findAllByOrderByCreatedDateDesc();
+    //List<Post> findAllByOrderByCreatedDateDesc();
+
+    List<PostSummaryDto> findAllByOrderByCreatedDateDesc();
 
     List<Post> findAllByOrderByCreatedDateDesc(Pageable pageable);
 
@@ -23,13 +26,13 @@ public interface PostRepository extends JpaRepository<Post, Long>  {
            OR (p.createdDate = :createdDate AND p.id < :id)
         ORDER BY p.createdDate DESC, p.id DESC
     """)
-    List<Post> findPostsByCursor(
+    List<PostSummaryDto> findPostsByCursor(
             @Param("createdDate") LocalDateTime createdDate,
             @Param("id") Long id,
             Pageable pageable
     );
 
     // 첫 번째 커서 요청
-    List<Post> findTop10ByOrderByCreatedDateDesc();
+    List<PostSummaryDto> findTop10ByOrderByCreatedDateDesc();
 
 }
