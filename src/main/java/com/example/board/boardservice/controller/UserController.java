@@ -2,7 +2,7 @@ package com.example.board.boardservice.controller;
 
 import com.example.board.boardservice.dto.LoginRequest;
 import com.example.board.boardservice.dto.SignUpRequest;
-import com.example.board.boardservice.entity.User;
+import com.example.board.boardservice.entity.Users;
 import com.example.board.boardservice.response.ApiResponse;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.example.board.boardservice.service.UserService;
@@ -24,11 +24,11 @@ public class UserController {
 
     @GetMapping("/api/auth/session")
     public ApiResponse<Object> checkSession(HttpSession httpSession){
-        User user = (User) sessionService.getUserFromSession(httpSession);
-        if (user == null){
+        Users users = (Users) sessionService.getUserFromSession(httpSession);
+        if (users == null){
             return new ApiResponse<>(ErrorCode.SESSION_EXPIRED.getCode(), "세션이 유효하지 않거나 데이터가 없습니다.", null);
         }
-        return new ApiResponse<>(ErrorCode.OK.getCode(), "세션 확인 성공", user.getUsername());
+        return new ApiResponse<>(ErrorCode.OK.getCode(), "세션 확인 성공", users.getUsername());
     }
 
     @PostMapping("/api/auth/signup")
@@ -39,7 +39,7 @@ public class UserController {
 
     @PostMapping("/api/auth/login")
     public ApiResponse<Object> login(@Valid @RequestBody LoginRequest loginRequest, HttpSession httpSession){
-        User login = userService.login(loginRequest, httpSession);
+        Users login = userService.login(loginRequest, httpSession);
 
         return new ApiResponse<>(ErrorCode.OK.getCode(), "로그인 성공", login.getUsername());
     }
