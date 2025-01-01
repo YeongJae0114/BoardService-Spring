@@ -1,7 +1,7 @@
 package com.example.board.boardservice.controller;
 
-import com.example.board.boardservice.dto.LoginRequest;
-import com.example.board.boardservice.dto.SignUpRequest;
+import com.example.board.boardservice.dto.request.LoginRequest;
+import com.example.board.boardservice.dto.request.SignUpRequest;
 import com.example.board.boardservice.entity.Users;
 import com.example.board.boardservice.response.ApiResponse;
 import com.example.board.boardservice.response.model.ErrorCode;
