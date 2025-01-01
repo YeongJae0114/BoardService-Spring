@@ -1,7 +1,6 @@
 package com.example.board.boardservice.response;
 
-import com.example.board.boardservice.dto.CursorDto;
-import com.example.board.boardservice.entity.Post;
+import com.example.board.boardservice.dto.response.CursorDto;
 import com.example.board.boardservice.response.model.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
