@@ -1,11 +1,10 @@
-package com.example.board.boardservice.dto;
+package com.example.board.boardservice.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
