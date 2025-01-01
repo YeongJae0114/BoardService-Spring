@@ -1,7 +1,8 @@
 package com.example.board.boardservice.controller;
 
-import com.example.board.boardservice.dto.CursorDto;
-import com.example.board.boardservice.dto.PostDto;
+import com.example.board.boardservice.dto.response.CreatePostDto;
+import com.example.board.boardservice.dto.response.CursorDto;
+import com.example.board.boardservice.dto.request.PostDto;
 import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.entity.Users;
@@ -37,7 +38,6 @@ public class PostController {
         return new ApiResponse<>(result);
     }
 
-
     public <T> ApiResponse<T> makeResponse(T result){
         return makeResponse(Collections.singletonList(result));
     }
@@ -48,16 +48,17 @@ public class PostController {
 
     // 게시글 등록
     @PostMapping(value = "/api/posts")
-    public ApiResponse<Post> savePost(@RequestBody PostDto postDto, HttpSession session){
+    public ApiResponse<CreatePostDto> savePost(@RequestBody PostDto postDto, HttpSession session){
         Users users = (Users) sessionService.getUserFromSession(session);
         if (users == null){
             return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
         }
         log.info("유효한 세션: {}", session.getId()); // 세션 로그 추가
         Post post = postService.savePost(postDto, users);
+        CreatePostDto createPostDto = new CreatePostDto(post.getId(), post.getTitle(), post.getContent(), post.getCreatedDate(), post.getAuthor().getUsername());
+        //return new ApiResponse<>(ErrorCode.OK.getCode(), "게시글 저장 성공", createPostDto);
 
-
-        return new ApiResponse<>(ErrorCode.OK.getCode(), "게시글 저장 성공", null);
+        return makeResponse(createPostDto);
     }
 
 
@@ -68,6 +69,7 @@ public class PostController {
         if (users == null){
             return new ApiResponse<>(ErrorCode.UNAUTHORIZED_ACCESS.getCode(), "로그인이 필요합니다.", null);
         }
+
         Post post = postService.updatePost(id, postDto, users);
 
         return makeResponse(post);
@@ -97,7 +99,7 @@ public class PostController {
 
     @GetMapping("/api/posts/cursor")
     public CursorDto<PostSummaryDto> getNextPage(@RequestParam(required = false) LocalDateTime createdDateCursor,
-                                                    @RequestParam(required = false) Long cursorId){
+                                                 @RequestParam(required = false) Long cursorId){
         if (createdDateCursor == null && cursorId == null) {
             // 첫 번째 페이지 요청
             return postService.firstPostsByCursor();

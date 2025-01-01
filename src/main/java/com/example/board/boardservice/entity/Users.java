@@ -42,7 +42,7 @@ public class Users {
     @Column(nullable = false)
     private Role role; // 역할 필드 추가
 
-    @JsonIgnore // 순환 참조 방지를 위해 @JsonIgnore 추가
+    @JsonIgnore // 순환 참조 방지
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 }

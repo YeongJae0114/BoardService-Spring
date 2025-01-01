@@ -1,7 +1,7 @@
 package com.example.board.boardservice.service;
 
-import com.example.board.boardservice.dto.CursorDto;
-import com.example.board.boardservice.dto.PostDto;
+import com.example.board.boardservice.dto.response.CursorDto;
+import com.example.board.boardservice.dto.request.PostDto;
 import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.entity.Users;

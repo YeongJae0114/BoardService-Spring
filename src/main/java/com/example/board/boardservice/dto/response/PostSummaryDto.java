@@ -8,5 +8,5 @@ public interface PostSummaryDto {
     String getTitle();
     String getContent();
     LocalDateTime getCreatedDate();
-    String getAuthor();
+    String getUsername();
 }

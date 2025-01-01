@@ -10,4 +10,5 @@ import lombok.Getter;
 public class Comment {
     @Id @GeneratedValue
     private Long id;
+
 }

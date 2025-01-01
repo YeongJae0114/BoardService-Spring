@@ -1,7 +1,7 @@
 package com.example.board.boardservice.service.imp;
 
-import com.example.board.boardservice.dto.CursorDto;
-import com.example.board.boardservice.dto.PostDto;
+import com.example.board.boardservice.dto.response.CursorDto;
+import com.example.board.boardservice.dto.request.PostDto;
 import com.example.board.boardservice.dto.response.PostSummaryDto;
 import com.example.board.boardservice.entity.Post;
 import com.example.board.boardservice.entity.Users;
@@ -32,6 +32,7 @@ public class PostServiceImp implements PostService {
                 .author(users)
                 .createdDate(LocalDateTime.now())
                 .build();
+
         return postRepository.save(post);
     }
 
@@ -55,13 +56,14 @@ public class PostServiceImp implements PostService {
         if (!findPost.getAuthor().getId().equals(users.getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS, "수정 권한이 없습니다.", null);
         }
-        findPost.toBuilder()
+
+        Post updatedPost = findPost.toBuilder()
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
                 .build();
 
         // 수정일은 나중에 추가할게용
-        return postRepository.save(findPost);
+        return postRepository.save(updatedPost);
     }
 
     @Override

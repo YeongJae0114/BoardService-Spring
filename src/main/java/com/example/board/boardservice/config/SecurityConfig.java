@@ -37,12 +37,10 @@ public class SecurityConfig {
                 // 경로별 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/auth/session").permitAll() // Swagger 허용
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/logout").permitAll() // 회원가입/로그인 허용
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/logout", "/api/posts").permitAll() // 회원가입/로그인 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // 게시글 조회 허용
-                        .requestMatchers(HttpMethod.POST, "/api/posts").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/posts").authenticated() // 쓰기/수정/삭제 인증 필요
-                        .requestMatchers(HttpMethod.PUT, "/api/posts").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/posts").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").permitAll()
                         .anyRequest().authenticated() // 그 외 요청은 인증 필요
                 )
                 // 세션 설정
